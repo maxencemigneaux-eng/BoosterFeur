@@ -1,0 +1,15 @@
+# Configuration Render (New → Blueprint)
+services:
+  - type: web
+    name: booster-club
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: TURSO_DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false
