@@ -19,16 +19,18 @@ Tout est calculé côté serveur (tirages, pièces, ventes), donc personne ne pe
 
 ## 1. Lancer le jeu sur ton PC
 
-1. Installe **Node.js** (version 20 ou plus) : <https://nodejs.org> (prends la version « LTS »).
-2. **Windows** : double-clique sur `Lancer-le-jeu.bat`. Il installe ce qu'il faut au premier lancement et ouvre le jeu dans ton navigateur.
+1. Installe **Node.js** en version 22.13 ou plus récente : <https://nodejs.org> (prends la version « LTS »).
+2. **Windows** : double-clique sur `Lancer-le-jeu.bat`. Il installe ce qu'il faut au premier lancement, démarre le serveur et ouvre le jeu dans ton navigateur.
    **Autre système**, ou en ligne de commande, dans le dossier du jeu :
    ```
    npm install
    npm start
    ```
-3. Ouvre <http://localhost:3000> et crée ton compte.
+3. Crée ton compte.
 
-Les sauvegardes sont stockées dans le fichier `booster-club.db`. Pour tout remettre à zéro, supprime ce fichier.
+> **Garde la fenêtre noire ouverte pendant que tu joues.** C'est elle qui fait tourner le serveur du jeu : si tu la fermes, le site reste affiché mais plus rien ne marche (connexion, boosters…). Pour arrêter le jeu, ferme-la quand tu as fini.
+
+Les sauvegardes sont stockées dans le fichier `booster-club.db`. Pour tout remettre à zéro, supprime ce fichier. En cas de problème, les erreurs sont aussi écrites dans `erreurs.log`.
 
 ## 2. Jouer avec tes potes (mise en ligne gratuite)
 

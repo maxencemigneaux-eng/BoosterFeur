@@ -1,5 +1,6 @@
 @echo off
-title Booster Club
+chcp 65001 >nul
+title Booster Club - laisse cette fenetre ouverte pendant que tu joues
 cd /d "%~dp0"
 where node >nul 2>nul
 if errorlevel 1 (
@@ -11,6 +12,8 @@ if not exist node_modules (
   echo Installation des dependances, une seule fois...
   call npm install
 )
-start "" cmd /c "timeout /t 2 >nul & start http://localhost:3000"
+set OPEN_BROWSER=1
 node server.js
+echo.
+echo Le serveur du jeu s'est arrete. Si une erreur est affichee au-dessus, fais une capture et envoie-la a Claude.
 pause

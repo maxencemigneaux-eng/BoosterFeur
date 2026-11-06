@@ -5,14 +5,26 @@ import crypto from 'node:crypto';
 import zlib from 'node:zlib';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { db, migrate, one, all, run } from './db.js';
+import fs from 'node:fs';
+import { exec } from 'node:child_process';
+import { db, db_kind, migrate, one, all, run } from './db.js';
 import {
   ECONOMY, TIERS, ACHIEVEMENTS, loadData, rollPack, isFeedWorthy,
   computeStats, achievementProgress, newlyEarned, today,
 } from './game.js';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
+const LOG_FILE = path.join(ROOT, 'erreurs.log');
+
+// Toute erreur est affichée ET écrite dans erreurs.log (pratique pour comprendre un plantage)
+function logError(where, err) {
+  const line = `[${new Date().toLocaleString('fr-FR')}] ${where} : ${err?.stack || err}\n`;
+  console.error(line);
+  try { fs.appendFileSync(LOG_FILE, line); } catch {}
+}
+process.on('uncaughtException', (e) => logError('Erreur inattendue', e));
+process.on('unhandledRejection', (e) => logError('Promesse rejetée', e));
 const SESSION_DAYS = 30;
 const COOKIE = 'bc_session';
 
@@ -344,19 +356,41 @@ app.get('/api/feed', auth, wrap(async (req, res) => {
 }));
 
 // ───────────── Front-end ─────────────
-app.use(express.static(path.join(ROOT, 'public'), { extensions: ['html'], maxAge: '1h' }));
+app.use(express.static(path.join(ROOT, 'public'), {
+  extensions: ['html'],
+  // Polices : en cache 7 jours. Le reste est revalidé à chaque visite (les mises à jour sont prises tout de suite)
+  setHeaders: (res, file) => res.setHeader('Cache-Control', file.endsWith('.woff2') ? 'public, max-age=604800' : 'no-cache'),
+}));
 app.get(/^\/(?!api\/).*/, (req, res) => res.sendFile(path.join(ROOT, 'public', 'index.html')));
 
 app.use((err, req, res, _next) => {
-  console.error(err);
+  logError(`${req.method} ${req.path}`, err);
   res.status(500).json({ error: 'Erreur serveur, réessaie' });
 });
 
 // Nettoyage des sessions expirées
 setInterval(() => run('DELETE FROM sessions WHERE expires < ?', [Date.now()]).catch(() => {}), 3600e3).unref();
 
-app.listen(PORT, () => {
-  console.log(`\n  Booster Club lancé → http://localhost:${PORT}`);
-  console.log(`  ${data.sets.length} extensions, ${data.cards.length} cartes`);
-  console.log(`  Base de données : ${process.env.TURSO_DATABASE_URL ? 'Turso (en ligne)' : 'fichier local'}\n`);
-});
+// Démarrage : si le port est pris (jeu déjà lancé ou autre appli), on essaie le suivant
+function start(port, tries = 0) {
+  const server = app.listen(port, () => {
+    const url = `http://localhost:${port}`;
+    console.log(`\n  Booster Club lancé → ${url}`);
+    console.log(`  ${data.sets.length} extensions, ${data.cards.length} cartes`);
+    console.log(`  Base de données : ${db_kind}`);
+    if (process.env.OPEN_BROWSER) {
+      console.log('\n  /!\\  Laisse cette fenêtre ouverte pendant que tu joues : si tu la fermes, le jeu s\'arrête.\n');
+      const cmd = process.platform === 'win32' ? `start "" "${url}"` : process.platform === 'darwin' ? `open "${url}"` : `xdg-open "${url}"`;
+      exec(cmd, () => {});
+    }
+  });
+  server.on('error', (e) => {
+    if (e.code === 'EADDRINUSE' && !process.env.PORT && tries < 10) {
+      console.log(`  Le port ${port} est déjà utilisé, essai sur ${port + 1}…`);
+      return start(port + 1, tries + 1);
+    }
+    logError('Démarrage du serveur', e);
+    process.exit(1);
+  });
+}
+start(PORT);

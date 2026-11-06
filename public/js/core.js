@@ -14,8 +14,18 @@ export const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 export async function api(path, body) {
   const opts = body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
   let r;
-  try { r = await fetch('/api' + path, opts); }
-  catch { const e = new Error('Connexion au serveur impossible'); e.status = 0; throw e; }
+  for (let attempt = 0; ; attempt++) {
+    try { r = await fetch('/api' + path, opts); break; }
+    catch {
+      if (attempt < 2) { await sleep(1200); continue; }
+      const local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+      const e = new Error(local
+        ? 'Le serveur du jeu ne répond plus. Vérifie que la fenêtre noire « Booster Club » est toujours ouverte (sinon relance Lancer-le-jeu.bat), puis réessaie.'
+        : 'Le serveur du jeu ne répond pas. Réessaie dans un instant.');
+      e.status = 0;
+      throw e;
+    }
+  }
   let j = {};
   try { j = await r.json(); } catch {}
   if (!r.ok) { const e = new Error(j.error || 'Erreur'); e.status = r.status; throw e; }
