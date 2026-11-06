@@ -1,0 +1,15 @@
+{
+  "_info": "Liste des extensions disponibles dans la boutique. 'folder' = dossier dans tcgdex/cards-database/data. 'template' = composition du booster (wotc, swsh, sv, me). Après avoir ajouté une extension, relance : npm run build-data",
+  "sets": [
+    { "id": "me02",   "folder": "Mega Evolution/Phantasmal Flames",       "price": 150, "template": "me",   "colors": ["#1e1b4b", "#f97316", "#c4b5fd"] },
+    { "id": "me01",   "folder": "Mega Evolution/Mega Evolution",          "price": 150, "template": "me",   "colors": ["#3b0764", "#9333ea", "#fde047"] },
+    { "id": "sv08.5", "folder": "Scarlet & Violet/Prismatic Evolutions",  "price": 200, "template": "sv",   "colors": ["#4c1d95", "#c084fc", "#67e8f9"] },
+    { "id": "sv08",   "folder": "Scarlet & Violet/Surging Sparks",        "price": 150, "template": "sv",   "colors": ["#713f12", "#eab308", "#fef08a"] },
+    { "id": "sv03.5", "folder": "Scarlet & Violet/151",                   "price": 180, "template": "sv",   "colors": ["#831843", "#ec4899", "#fbcfe8"] },
+    { "id": "sv01",   "folder": "Scarlet & Violet/Scarlet & Violet",      "price": 120, "template": "sv",   "colors": ["#9f1239", "#7c3aed", "#fda4af"] },
+    { "id": "swsh7",  "folder": "Sword & Shield/Evolving Skies",          "price": 160, "template": "swsh", "colors": ["#0c4a6e", "#0ea5e9", "#a5f3fc"] },
+    { "id": "base3",  "folder": "Base/Fossil",                            "price": 200, "template": "wotc", "colors": ["#292524", "#a8a29e", "#f59e0b"] },
+    { "id": "base2",  "folder": "Base/Jungle",                            "price": 200, "template": "wotc", "colors": ["#14532d", "#16a34a", "#bef264"] },
+    { "id": "base1",  "folder": "Base/Base Set",                          "price": 220, "template": "wotc", "colors": ["#1e3a8a", "#2563eb", "#facc15"] }
+  ]
+}
